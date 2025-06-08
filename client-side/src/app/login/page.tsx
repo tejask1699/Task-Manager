@@ -30,10 +30,12 @@ const Login = () => {
                 },
                 body:JSON.stringify(data)
             })
-            console.log(await res.json())
+            const data = await res.json())
+local storage.setItem("token",data.token)
+toast.succes("Login successful")
             router.push('/dashboard')
         } catch (error) {
-            console.log(error)
+            toast.error(error,"Please try again")
         }
 
     }
