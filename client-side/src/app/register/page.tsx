@@ -43,11 +43,13 @@ const Register = () => {
                 },
                 body:JSON.stringify(formattedData)
         })
-        console.log(res.json())
+        const data = res.json()
+local storage.setItem("token", data.token)
+toast.succes("Registered successfully")
             router.push('/dashboard')
 
     } catch (error) {
-      console.log(error)
+      toast.error(error,"Please try again")
     }
   }
 
