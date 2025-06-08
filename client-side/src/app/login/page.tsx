@@ -20,9 +20,22 @@ const Login = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<LoginData>()
     const [showPassword, setShowPassword] = useState(false)
 
-    const onSubmit = (data: LoginData) => {
-        router.push('/dashboard')
-        console.log(data)
+    const onSubmit = async (data: LoginData) => {
+        
+        try {
+            const res = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify(data)
+            })
+            console.log(await res.json())
+            router.push('/dashboard')
+        } catch (error) {
+            console.log(error)
+        }
+
     }
 
     return (
@@ -85,7 +98,7 @@ const Login = () => {
                             </Button>
                         </div>
                     </form>
-                  <AuthFooter type="login" />
+                    <AuthFooter type="login" />
                 </CardContent>
             </Card>
         </div>

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
 import AuthFooter from '@/components/auth/auth-footer'
+import { useRouter } from 'next/navigation'
 
 interface RegisterData {
   user_name: string
@@ -25,10 +26,29 @@ const Register = () => {
   } = useForm<RegisterData>()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const router = useRouter()
 
 
-  const onSubmit = (data: RegisterData) => {
-    console.log(data)
+  const onSubmit = async (data: RegisterData) => {
+    const formattedData = {
+      user_name:data.user_name,
+      user_password:data.user_password,
+      user_email:data.user_email
+    }
+    try {
+        const res = await fetch(`http://localhost:5000/api/register`,{
+          method:'POST',
+           headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify(formattedData)
+        })
+        console.log(res.json())
+            router.push('/dashboard')
+
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   // Watch password to validate confirm password
