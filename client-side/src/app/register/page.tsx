@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
 import AuthFooter from '@/components/auth/auth-footer'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 interface RegisterData {
   user_name: string
