@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
 import AuthFooter from '@/components/auth/auth-footer'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 interface LoginData {
     user_email: string
@@ -21,24 +22,28 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false)
 
     const onSubmit = async (data: LoginData) => {
-        
-        try {
-            const res = await fetch('http://localhost:5000/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body:JSON.stringify(data)
-            })
-            const data = await res.json())
-local storage.setItem("token",data.token)
-toast.succes("Login successful")
-            router.push('/dashboard')
-        } catch (error) {
-            toast.error(error,"Please try again")
-        }
+    try {
+        const res = await fetch('http://localhost:5000/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
 
+        if (res.status === 200) {
+            const Userdata = await res.json()
+            localStorage.setItem("token", Userdata.token)
+            toast.success("Login successful")
+            router.push('/dashboard')
+        } else {
+            toast.error("Login failed. Please check your credentials.")
+        }
+    } catch (error) {
+        toast.error("An error occurred. Please try again.")
     }
+}
+
 
     return (
         <div className="flex flex-col items-center justify-center h-[100vh] bg-gray-50">

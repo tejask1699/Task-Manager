@@ -31,28 +31,35 @@ const Register = () => {
 
 
   const onSubmit = async (data: RegisterData) => {
-    const formattedData = {
-      user_name:data.user_name,
-      user_password:data.user_password,
-      user_email:data.user_email
-    }
-    try {
-        const res = await fetch(`http://localhost:5000/api/register`,{
-          method:'POST',
-           headers: {
-                    'Content-Type': 'application/json',
-                },
-                body:JSON.stringify(formattedData)
-        })
-        const data = res.json()
-local storage.setItem("token", data.token)
-toast.succes("Registered successfully")
-            router.push('/dashboard')
+  const formattedData = {
+    user_name: data.user_name,
+    user_password: data.user_password,
+    user_email: data.user_email
+  };
 
-    } catch (error) {
-      toast.error(error,"Please try again")
+  try {
+    const res = await fetch(`http://localhost:5000/api/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formattedData)
+    });
+
+    if (res.ok) { // same as res.status >= 200 && res.status < 300
+      const Userdata = await res.json();
+      localStorage.setItem("token", Userdata.token);
+      toast.success("Registered successfully");
+      router.push('/dashboard');
+    } else {
+      const errorData = await res.json();
+      toast.error(errorData.message || "Registration failed");
     }
+  } catch (error) {
+    toast.error("Please try again");
   }
+}
+
 
   // Watch password to validate confirm password
   const password = watch('user_password')
