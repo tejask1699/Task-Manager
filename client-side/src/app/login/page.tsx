@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
@@ -34,14 +34,21 @@ const Login = () => {
         if (res.status === 200) {
             const Userdata = await res.json()
             localStorage.setItem("token", Userdata.token)
+            localStorage.setItem("userID", Userdata.user.id)
+            localStorage.setItem("userName", Userdata.user.user_name)
+
             toast.success("Login successful")
             router.push('/dashboard')
         } else {
             toast.error("Login failed. Please check your credentials.")
         }
     } catch (error) {
-        toast.error("An error occurred. Please try again.")
-    }
+  const message =
+    error instanceof Error
+      ? error.message
+      : "An unexpected error occurred. Please try again."
+  toast.error(message)
+}
 }
 
 

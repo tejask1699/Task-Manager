@@ -1,75 +1,114 @@
+"use client"
+
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { format } from "date-fns"
+import { Calendar, GripVertical, MoreHorizontal, User } from "lucide-react"
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  assignee: {
-    name: string
-    avatar: string
-    initials: string
-  } | null
-  priority: "low" | "medium" | "high"
-}
+import { Task } from "@/types/dashboard"
 
 interface TaskCardProps {
   task: Task
+  isDragging?: boolean
 }
 
 const priorityColors = {
-  low: "bg-blue-100 text-blue-800 hover:bg-blue-100",
-  medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
-  high: "bg-red-100 text-red-800 hover:bg-red-100",
+  low: "bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400",
+  medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400",
+  high: "bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400",
 }
 
-const categoryColors = {
-  Frontend: "bg-green-100 text-green-800 hover:bg-green-100",
-  Backend: "bg-purple-100 text-purple-800 hover:bg-purple-100",
-  Database: "bg-orange-100 text-orange-800 hover:bg-orange-100",
-  Documentation: "bg-gray-100 text-gray-800 hover:bg-gray-100",
-  Setup: "bg-cyan-100 text-cyan-800 hover:bg-cyan-100",
-  DevOps: "bg-pink-100 text-pink-800 hover:bg-pink-100",
-}
+export function TaskCard({ task, isDragging = false }: TaskCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({
+    id: task.id,
+  })
 
-export function TaskCard({ task }: TaskCardProps) {
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  const dueDate = new Date(task.due_date)
+  const isOverdue = dueDate < new Date()
+
+  if (isDragging) {
+    return (
+      <Card className="cursor-grabbing opacity-80 rotate-5 shadow-lg">
+        <CardHeader className="pb-3">
+          <h4 className="font-medium leading-tight">{task.title}</h4>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
-    <Card className="group cursor-pointer transition-all hover:shadow-md hover:shadow-black/5">
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={`group cursor-grab transition-all hover:shadow-md hover:shadow-black/5 ${
+        isSortableDragging ? "opacity-50" : ""
+      }`}
+      {...attributes}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <h4 className="font-medium leading-tight">{task.title}</h4>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            <MoreHorizontal className="h-3 w-3" />
-          </Button>
+          <h4 className="font-medium leading-tight flex-1">{task.title}</h4>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer"
+              {...listeners}
+            >
+              <GripVertical className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <MoreHorizontal className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
-        <p className="mb-3 text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+      <CardContent className="pt-0 space-y-3">
+        <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
 
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
-            <Badge variant="secondary" className={categoryColors[task.category as keyof typeof categoryColors] || ""}>
-              {task.category}
-            </Badge>
             <Badge variant="outline" className={priorityColors[task.priority]}>
               {task.priority}
             </Badge>
           </div>
 
-          {task.assignee && (
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={task.assignee.avatar || "/placeholder.svg"} alt={task.assignee.name} />
-              <AvatarFallback className="text-xs">{task.assignee.initials}</AvatarFallback>
-            </Avatar>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <User className="h-3 w-3" />
+            <span>User {task.user_id}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Calendar className="h-3 w-3" />
+          <span className={isOverdue ? "text-red-500 font-medium" : ""}>Due: {format(dueDate, "MMM dd, yyyy")}</span>
+          {isOverdue && (
+            <Badge variant="destructive" className="text-xs px-1 py-0">
+              Overdue
+            </Badge>
           )}
         </div>
       </CardContent>

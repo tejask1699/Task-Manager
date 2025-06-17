@@ -56,8 +56,12 @@ const Register = () => {
       toast.error(errorData.message || "Registration failed");
     }
   } catch (error) {
-    toast.error("Please try again");
-  }
+  const message =
+    error instanceof Error
+      ? error.message
+      : "An unexpected error occurred. Please try again."
+  toast.error(message)
+}
 }
 
 

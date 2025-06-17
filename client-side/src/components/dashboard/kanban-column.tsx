@@ -1,48 +1,50 @@
+"use client"
+
+import { useDroppable } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
+
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Column, Task } from "@/types/dashboard"
 import { TaskCard } from "./task-card"
 
-export interface Task {
-  id: string
-  title: string
-  description: string
-  category: string
-  assignee: {
-    name: string
-    avatar: string
-    initials: string
-  } | null
-  priority: "low" | "medium" | "high"
-}
-
 interface KanbanColumnProps {
-  title: string
+  column: Column
   tasks: Task[]
-  taskCount: number
 }
 
-export function KanbanColumn({ title, tasks, taskCount }: KanbanColumnProps) {
+export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
+  })
+
   return (
     <div className="flex min-w-[300px] flex-col rounded-lg border bg-muted/50 p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-foreground">{title}</h3>
+        <h3 className="font-semibold text-foreground">{column.title}</h3>
         <Badge variant="secondary" className="ml-2">
-          {taskCount}
+          {tasks.length}
         </Badge>
       </div>
 
       <ScrollArea className="flex-1 pr-2">
-        <div className="space-y-3">
-          {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+        <div
+          ref={setNodeRef}
+          className={`space-y-3 min-h-[200px] rounded-lg p-2 transition-colors ${isOver ? "bg-muted/80" : ""}`}
+        >
+          <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
+            {tasks.map((task) => (
+              <TaskCard key={task.id} task={task} />
+            ))}
+          </SortableContext>
+
+          {tasks.length === 0 && (
+            <div className="flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 text-sm text-muted-foreground">
+              Drop tasks here
+            </div>
+          )}
         </div>
       </ScrollArea>
-
-      {/* Placeholder for drag-and-drop zone */}
-      <div className="mt-4 rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center text-sm text-muted-foreground opacity-0 transition-opacity hover:opacity-100">
-        Drop tasks here
-      </div>
     </div>
   )
 }

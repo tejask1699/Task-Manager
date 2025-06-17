@@ -16,7 +16,7 @@ const AuthFooter = ({ type }: AuthFooterProps) => {
         </>
       ) : (
         <>
-          Don't have an account? <Link href="/register" className="text-blue-600 ml-1 hover:underline">Register</Link>
+          Don&apos;t have an account? <Link href="/register" className="text-blue-600 ml-1 hover:underline">Register</Link>
         </>
       )}
     </CardFooter>
