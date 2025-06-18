@@ -19,7 +19,7 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
   })
 
   return (
-    <div className="flex min-w-[300px] flex-col rounded-lg border bg-muted/50 p-4">
+    <div className="flex min-w-[400px] flex-col rounded-lg border bg-muted/50 p-4">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-foreground">{column.title}</h3>
         <Badge variant="secondary" className="ml-2">

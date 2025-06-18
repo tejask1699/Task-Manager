@@ -16,4 +16,11 @@ const getTasks = async (user_id) =>{
     return result.rows
 }
 
-module.exports = {createTask, getTasks}
+const deleteTask = async (id) => {
+    const result = await db.query(
+        'DELETE FROM task_data WHERE id = $1 RETURNING *',
+        [id]
+    )
+    return result.rows
+}
+module.exports = {createTask, getTasks,deleteTask}
