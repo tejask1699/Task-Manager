@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, EyeOff, Loader } from 'lucide-react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import AuthFooter from '@/components/auth/auth-footer'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -186,7 +186,7 @@ const Register = () => {
                 {loading ? (
                   <>
                     Register
-                    <Loader className='animate-spin' />
+                    <Loader2 className='animate-spin' />
                   </>
                 ) : (
                   "Register"
