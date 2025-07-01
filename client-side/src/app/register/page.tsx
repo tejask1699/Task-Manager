@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Loader } from 'lucide-react'
 import AuthFooter from '@/components/auth/auth-footer'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -27,42 +27,48 @@ const Register = () => {
   } = useForm<RegisterData>()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-    const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  
+  const router = useRouter()
 
 
   const onSubmit = async (data: RegisterData) => {
-  const formattedData = {
-    user_name: data.user_name,
-    user_password: data.user_password,
-    user_email: data.user_email
-  };
+    setLoading(true)
+    const formattedData = {
+      user_name: data.user_name,
+      user_password: data.user_password,
+      user_email: data.user_email
+    };
 
-  try {
-    const res = await fetch(`http://localhost:5000/api/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formattedData)
-    });
+    try {
+      const res = await fetch(`http://localhost:5000/api/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formattedData)
+      });
 
-    if (res.ok) { // same as res.status >= 200 && res.status < 300
-      const Userdata = await res.json();
-      localStorage.setItem("token", Userdata.token);
-      toast.success("Registered successfully");
-      router.push('/dashboard');
-    } else {
-      const errorData = await res.json();
-      toast.error(errorData.message || "Registration failed");
+      if (res.ok) { // same as res.status >= 200 && res.status < 300
+        const Userdata = await res.json();
+        localStorage.setItem("token", Userdata.token);
+        setLoading(false)
+        toast.success("Registered successfully");
+        router.push('/dashboard');
+      } else {
+        const errorData = await res.json();
+        setLoading(false)
+        toast.error(errorData.message || "Registration failed");
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+          setLoading(false)
+      toast.error(message)
     }
-  } catch (error) {
-  const message =
-    error instanceof Error
-      ? error.message
-      : "An unexpected error occurred. Please try again."
-  toast.error(message)
-}
-}
+  }
 
 
   // Watch password to validate confirm password
@@ -176,8 +182,15 @@ const Register = () => {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600">
-                Register
+              <Button type="submit" disabled={loading} className="w-full text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600">
+                {loading ? (
+                  <>
+                    Register
+                    <Loader className='animate-spin' />
+                  </>
+                ) : (
+                  "Register"
+                )}
               </Button>
             </div>
           </form>

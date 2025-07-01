@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Loader } from 'lucide-react'
 import AuthFooter from '@/components/auth/auth-footer'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -20,36 +20,42 @@ const Login = () => {
     const router = useRouter()
     const { register, handleSubmit, formState: { errors } } = useForm<LoginData>()
     const [showPassword, setShowPassword] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const onSubmit = async (data: LoginData) => {
-    try {
-        const res = await fetch('http://localhost:5000/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
+        setLoading(true)
+        try {
+            const res = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
 
-        if (res.status === 200) {
-            const Userdata = await res.json()
-            localStorage.setItem("token", Userdata.token)
-            localStorage.setItem("userID", Userdata.user.id)
-            localStorage.setItem("userName", Userdata.user.user_name)
+            if (res.status === 200) {
+                const Userdata = await res.json()
+                localStorage.setItem("token", Userdata.token)
+                localStorage.setItem("userID", Userdata.user.id)
+                localStorage.setItem("userName", Userdata.user.user_name)
+                setLoading(false)
+                toast.success("Login successful")
+                router.push('/dashboard')
+            } else {
+                toast.error("Login failed. Please check your credentials.")
+                setLoading(false)
 
-            toast.success("Login successful")
-            router.push('/dashboard')
-        } else {
-            toast.error("Login failed. Please check your credentials.")
+            }
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "An unexpected error occurred. Please try again."
+            setLoading(false)
+
+            toast.error(message)
         }
-    } catch (error) {
-  const message =
-    error instanceof Error
-      ? error.message
-      : "An unexpected error occurred. Please try again."
-  toast.error(message)
-}
-}
+    }
 
 
     return (
@@ -107,8 +113,15 @@ const Login = () => {
                             </div>
 
                             {/* Submit Button */}
-                            <Button type="submit" className="w-full text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600">
-                                Login
+                            <Button type="submit" disabled={loading} className="w-full text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600">
+                                {loading ? (
+                                    <>
+                                        Login
+                                        <Loader className='animate-spin' />
+                                    </>
+                                ) : (
+                                    "Login"
+                                )}
                             </Button>
                         </div>
                     </form>
