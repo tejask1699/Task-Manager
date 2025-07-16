@@ -1,4 +1,4 @@
-const { createTask, getTasks, deleteTask } = require('../models/taskModel')
+const { createTask, getTasks, deleteTask, updateTaskStatus } = require('../models/taskModel')
 
 const createTaskById = async (req, res) => {
     const { user_id, title, description, priority, due_date } = req.body
@@ -46,4 +46,15 @@ const deleteTaskById = async (req, res) => {
     }
 };
 
-module.exports = { createTaskById, getTasksById,deleteTaskById }
+const updateByStatus = async (req, res) => {
+    const { id, priority } = req.body
+    try {
+        const updateStatus = await updateTaskStatus(priority, id)
+        res.json({ status: updateStatus })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+module.exports = { createTaskById, getTasksById, deleteTaskById,updateByStatus }

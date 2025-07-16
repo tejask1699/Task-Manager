@@ -1,14 +1,14 @@
 const db = require('../config/db')
 
-const createTask = async (user_id,title,description,priority,due_date) =>{
+const createTask = async (user_id, title, description, priority, due_date) => {
     const result = await db.query(
         'INSERT INTO task_data (user_id,title,description,due_date,priority) VALUES ($1,$2,$3,$4,$5) RETURNING *',
-        [user_id,title,description,due_date,priority]
+        [user_id, title, description, due_date, priority]
     );
     return result.rows[0]
 }
 
-const getTasks = async (user_id) =>{
+const getTasks = async (user_id) => {
     const result = await db.query(
         'SELECT * FROM task_data WHERE user_id = $1 ORDER BY due_date ASC',
         [user_id]
@@ -23,4 +23,12 @@ const deleteTask = async (id) => {
     )
     return result.rows
 }
-module.exports = {createTask, getTasks,deleteTask}
+
+const updateTaskStatus = async (priority, id) => {
+    const result = await db.query(
+        'UPDATE tasks SET priority = $1 WHERE id = $2 RETURNING *',
+        [priority, id]
+    );
+    return result.rows;
+}
+module.exports = { createTask, getTasks, deleteTask,updateTaskStatus }

@@ -99,9 +99,10 @@ export function KanbanBoard({ tasks }: Props) {
     )
   }
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
     setActiveTask(null)
+
     if (!over || active.id === over.id) return
 
     const activeTask = tasks.find((t) => t.id === active.id)
@@ -115,6 +116,7 @@ export function KanbanBoard({ tasks }: Props) {
     )
 
     if (activeColumn && overColumn && activeColumn.id === overColumn.id) {
+      // Reorder inside the same column
       setColumns((prevColumns) =>
         prevColumns.map((col) => {
           if (col.id === activeColumn.id) {
@@ -128,6 +130,41 @@ export function KanbanBoard({ tasks }: Props) {
           return col
         }),
       )
+    } else if (activeColumn && overColumn && activeColumn.id !== overColumn.id) {
+      // Moved to a different column (status change)
+      const updatedTask = { ...activeTask, status: overColumn.id as Task['status'] }
+
+      setColumns((prevColumns) =>
+        prevColumns.map((col) => {
+          if (col.id === activeColumn.id) {
+            return {
+              ...col,
+              tasks: col.tasks.filter((task) => task.id !== active.id),
+            }
+          }
+          if (col.id === overColumn.id) {
+            return {
+              ...col,
+              tasks: [...col.tasks, updatedTask],
+            }
+          }
+          return col
+        }),
+      )
+      try {
+        await fetch(`http://localhost:5000/api/update`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id:active.id,
+            priority: overColumn.id,
+          }),
+        })
+      } catch (error) {
+        console.error('Failed to update task status:', error)
+      }
     }
   }
 
